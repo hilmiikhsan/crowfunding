@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"crowfunding/auth"
 	"crowfunding/helper"
 	"crowfunding/user"
 	"fmt"
@@ -11,17 +12,14 @@ import (
 
 type userHandler struct {
 	userService user.Service
+	authService auth.Service
 }
 
-func NewUserHandler(userService user.Service) *userHandler {
-	return &userHandler{userService}
+func NewUserHandler(userService user.Service, autService auth.Service) *userHandler {
+	return &userHandler{userService, autService}
 }
 
 func (h *userHandler) RegisterUser(c *gin.Context) {
-	// Tangkap Input dari User
-	// Map Input dari User ke struct RegisterUserInput
-	// struct diatas kita passing sebagai parameter service
-
 	var input user.RegisterUserInput
 
 	err := c.ShouldBindJSON(&input)
@@ -44,7 +42,16 @@ func (h *userHandler) RegisterUser(c *gin.Context) {
 	}
 
 	// token 
-	formatter := user.FormatUser(newUser, "tokentokentokentokentokentoken")
+
+	token, err := h.authService.GenerateToken(newUser.ID)
+
+	if err != nil {
+		response := helper.APIResponse("Register account is failed", http.StatusBadRequest, "error", nil)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	formatter := user.FormatUser(newUser, token)
 	response := helper.APIResponse("Account has been registered", http.StatusOK, "success", formatter)
 	c.JSON(http.StatusOK, response)
 }
@@ -82,7 +89,15 @@ func (h *userHandler) Login(c *gin.Context) {
 		return
 	}
 
-	formatter := user.FormatUser(loggedinUser, "tokentokentokentoekn")
+	token, err := h.authService.GenerateToken(loggedinUser.ID)
+
+	if err != nil {
+		response := helper.APIResponse("Login failed", http.StatusBadRequest, "error", nil)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	formatter := user.FormatUser(loggedinUser, token)
 	response := helper.APIResponse("Successfully loggedin", http.StatusOK, "success", formatter)
 	c.JSON(http.StatusOK, response)
 }
