@@ -103,14 +103,6 @@ func (h *userHandler) Login(c *gin.Context) {
 }
 
 func (h *userHandler) CheckEmailAvailability(c *gin.Context) {
-	/*
-		Ada input email dari user
-		Input email di mapping ke struct input
-		struct input di passing ke service
-		service akan memanggil repository - email sudah ada atau belum
-		repository -> db
-	*/
-
 	var input user.CheckEmailInput
 
 	err := c.ShouldBindJSON(&input)
@@ -148,15 +140,6 @@ func (h *userHandler) CheckEmailAvailability(c *gin.Context) {
 }
 
 func (h *userHandler) UploadAvatar(c *gin.Context) {
-	/*
-		Input dari user
-		Simpan gambarnya di folder "images/"
-		Di service panggil repository
-		JWT (Masih sementara seakan2 user sudah login ID = 1)
-		repo ambil data user yang ID = 1
-		repo update data user dan simpan lokasi file
-	*/
-
 	file, err := c.FormFile("avatar")
 
 	if err != nil {
@@ -166,7 +149,8 @@ func (h *userHandler) UploadAvatar(c *gin.Context) {
 		return
 	}
 
-	userId := 4
+	currentUser := c.MustGet("currentUser").(user.User)
+	userId := currentUser.ID
 
 	path := fmt.Sprintf("images/%d-%s", userId, file.Filename)
 
