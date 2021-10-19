@@ -2,9 +2,11 @@ package main
 
 import (
 	"crowfunding/auth"
+	"crowfunding/campaign"
 	"crowfunding/handler"
 	"crowfunding/helper"
 	"crowfunding/user"
+	"fmt"
 	"log"
 	"net/http"
 	"strings"
@@ -24,6 +26,24 @@ func main() {
 	}
 
 	userRepository := user.NewRepository(db)
+	campaignRepository := campaign.NewRepository(db)
+
+	campaigns, err := campaignRepository.FindByUserID(1)
+
+	fmt.Println("Debug")
+	fmt.Println("Debug")
+	fmt.Println("Debug")
+	fmt.Println(len(campaigns))
+
+	for _, campaign := range campaigns {
+		fmt.Println(campaign.Name)
+		if len(campaign.CampaignImages) > 0 {
+			fmt.Println("Jumlah Gambar :")
+			fmt.Println(len(campaign.CampaignImages))
+			fmt.Println(campaign.CampaignImages[0].FileName)
+		}
+	}
+
 	userService := user.NewService(userRepository)
 	authService := auth.NewService()
 
