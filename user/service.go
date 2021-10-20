@@ -85,12 +85,6 @@ func (s *service) IsEmailAvailable(input CheckEmailInput) (bool, error) {
 }
 
 func (s *service) SaveAvatar(ID int, fileLocation string) (User, error) {
-	/*
-		Dapatkan user berdasarkan ID
-		User update atribut avatar file name
-		Simpan perubahan avatar file name
-	*/
-
 	user, err := s.repository.FindById(ID)
 
 	if err != nil {
